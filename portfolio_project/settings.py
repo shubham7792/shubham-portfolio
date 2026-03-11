@@ -189,4 +189,3 @@ ACCOUNT_FORMS = {}
 
 # Apply CSS classes to all allauth form fields automatically
 ACCOUNT_SIGNUP_FORM_CLASS = None
-
