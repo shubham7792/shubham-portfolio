@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile.name|default:"Dev Portfolio" }} — Full Stack Developer{% endblock %}
+{% block meta_description %}{{ profile.tagline|default:"Full Stack Developer Portfolio" }}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="hero-container">
+    <!-- Left: Profile Image -->
+    <div class="hero-image-wrap" data-reveal="left">
+      <div class="hero-image-ring">
+        {% if profile and profile.profile_image %}
+          <img src="{{ profile.profile_image.url }}" alt="{{ profile.name }}" class="hero-img" />
+        {% else %}
+          <div class="hero-img-placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+        {% endif %}
+      </div>
+      <div class="hero-image-deco"></div>
+    </div>
+
+    <!-- Right: Text Content -->
+    <div class="hero-content" data-reveal="right">
+      <p class="hero-greeting">Hi, I'm</p>
+      <h1 class="hero-name">{% if profile %}{{ profile.name }}{% else %}Jace Smith{% endif %}</h1>
+      <p class="hero-title">
+        <span class="title-gradient">{% if profile %}{{ profile.title }}{% else %}Full Stack Developer{% endif %}</span>
+      </p>
+      <p class="hero-tagline">{% if profile %}{{ profile.tagline }}{% else %}Building beautiful & functional digital experiences.{% endif %}</p>
+
+      <div class="hero-actions">
+        {% if profile and profile.cv_file %}
+        <a href="/download-cv/" class="btn btn-primary">
+          <i class="fas fa-download"></i> Download CV
+        </a>
+        {% endif %}
+        <a href="/contact/" class="btn btn-outline">
+          <i class="fas fa-paper-plane"></i> Contact
+        </a>
+      </div>
+
+      <div class="hero-socials">
+        {% if profile %}
+          {% if profile.github_url %}<a href="{{ profile.github_url }}" target="_blank" rel="noopener" aria-label="GitHub" class="social-icon"><i class="fab fa-github"></i></a>{% endif %}
+          {% if profile.linkedin_url %}<a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn" class="social-icon"><i class="fab fa-linkedin-in"></i></a>{% endif %}
+          {% if profile.twitter_url %}<a href="{{ profile.twitter_url }}" target="_blank" rel="noopener" aria-label="Twitter" class="social-icon"><i class="fab fa-twitter"></i></a>{% endif %}
+          {% if profile.instagram_url %}<a href="{{ profile.instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram" class="social-icon"><i class="fab fa-instagram"></i></a>{% endif %}
+        {% else %}
+          <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating decorative elements -->
+  <div class="hero-deco-1"></div>
+  <div class="hero-deco-2"></div>
+  <div class="hero-deco-3"></div>
+</section>
+{% endblock %}

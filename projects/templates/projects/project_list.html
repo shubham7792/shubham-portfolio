@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Projects — Portfolio{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="page-tag">What I've built</p>
+    <h1 class="page-title">My <span class="highlight">Projects</span></h1>
+  </div>
+</section>
+
+<section class="projects-section">
+  <div class="container">
+    <!-- Filter bar -->
+    {% if technologies %}
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      {% for tech in technologies %}
+      <button class="filter-btn" data-filter="{{ tech.name|lower }}">{{ tech.name }}</button>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if projects %}
+    <div class="projects-grid" id="projectsGrid">
+      {% for project in projects %}
+      <div class="project-card" data-tech="{% for t in project.technologies.all %}{{ t.name|lower }} {% endfor %}">
+        <div class="project-img-wrap">
+          {% if project.image %}
+            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-img" loading="lazy" />
+          {% else %}
+            <div class="project-img-placeholder">
+              <i class="fas fa-code"></i>
+            </div>
+          {% endif %}
+          <div class="project-overlay">
+            <div class="project-links">
+              {% if project.github_url %}
+              <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="project-link-btn" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+              </a>
+              {% endif %}
+              {% if project.live_url %}
+              <a href="{{ project.live_url }}" target="_blank" rel="noopener" class="project-link-btn" aria-label="Live Demo">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% if project.is_featured %}
+          <span class="project-featured-badge">Featured</span>
+          {% endif %}
+          <span class="project-status-badge status-{{ project.status }}">{{ project.get_status_display }}</span>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">{{ project.title }}</h3>
+          <p class="project-desc">{{ project.short_description|default:project.description|truncatechars:120 }}</p>
+          <div class="project-techs">
+            {% for tech in project.technologies.all %}
+            <span class="tech-tag" style="border-color: {{ tech.color }}; color: {{ tech.color }}">{{ tech.name }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-code"></i>
+      <h3>Projects Coming Soon</h3>
+      <p>Check back later for exciting projects!</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Filter functionality
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.project-card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      cards.forEach(card => {
+        if (filter === 'all' || card.dataset.tech.includes(filter)) {
+          card.style.display = '';
+          setTimeout(() => card.style.opacity = '1', 10);
+        } else {
+          card.style.opacity = '0';
+          setTimeout(() => card.style.display = 'none', 300);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

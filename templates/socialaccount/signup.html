@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Connect Account — Portfolio{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-card" data-reveal="up">
+      <div class="auth-header">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">
+          {% if account.provider == 'github' %}
+            <i class="fab fa-github" style="color: var(--text);"></i>
+          {% elif account.provider == 'google' %}
+            <i class="fab fa-google" style="color: #4285F4;"></i>
+          {% else %}
+            <i class="fas fa-plug" style="color: var(--accent);"></i>
+          {% endif %}
+        </div>
+        <h1>Connect Account</h1>
+        <p>
+          You are signing in with <strong>{{ account.provider|capfirst }}</strong>
+          {% if account.get_profile_url %}as <strong>{{ account.get_profile_url }}</strong>{% endif %}.
+        </p>
+      </div>
+
+      {% if form.errors %}
+      <div class="form-error-box" style="margin-bottom:1rem;">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST" class="auth-form">
+        {% csrf_token %}
+        {% for field in form %}
+          {% if field.name != 'password1' and field.name != 'password2' %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<span class="form-error">{{ field.errors.0 }}</span>{% endif %}
+            {% if field.help_text %}<span style="font-size:0.8rem;color:var(--text-faint);">{{ field.help_text }}</span>{% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:0.5rem;">
+          <i class="fas fa-check"></i> Continue
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <a href="/accounts/login/">Back to Login</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

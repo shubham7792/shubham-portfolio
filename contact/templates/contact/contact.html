@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Contact — Portfolio{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="page-tag">Let's talk</p>
+    <h1 class="page-title">Get In <span class="highlight">Touch</span></h1>
+  </div>
+</section>
+
+<section class="contact-section">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- Info -->
+      <div class="contact-info" data-reveal="left">
+        <h2>Let's work together</h2>
+        <p>Have a project in mind? I'd love to hear about it. Send me a message and I'll get back to you as soon as possible.</p>
+
+        <div class="contact-cards">
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fas fa-envelope"></i></div>
+            <div>
+              <h4>Email</h4>
+              {% if profile and profile.email %}
+              <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
+              {% else %}
+              <span>your@email.com</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fab fa-github"></i></div>
+            <div>
+              <h4>GitHub</h4>
+              {% if profile and profile.github_url %}
+              <a href="{{ profile.github_url }}" target="_blank">View Profile</a>
+              {% else %}
+              <span>github.com/username</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon"><i class="fab fa-linkedin-in"></i></div>
+            <div>
+              <h4>LinkedIn</h4>
+              {% if profile and profile.linkedin_url %}
+              <a href="{{ profile.linkedin_url }}" target="_blank">Connect with me</a>
+              {% else %}
+              <span>linkedin.com/in/username</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="contact-form-wrap" data-reveal="right">
+        <form method="POST" class="contact-form">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.name.id_for_label }}">Name</label>
+              {{ form.name }}
+              {% if form.name.errors %}<span class="form-error">{{ form.name.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.email.id_for_label }}">Email</label>
+              {{ form.email }}
+              {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="{{ form.subject.id_for_label }}">Subject</label>
+            {{ form.subject }}
+            {% if form.subject.errors %}<span class="form-error">{{ form.subject.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="{{ form.message.id_for_label }}">Message</label>
+            {{ form.message }}
+            {% if form.message.errors %}<span class="form-error">{{ form.message.errors.0 }}</span>{% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">
+            <i class="fas fa-paper-plane"></i> Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

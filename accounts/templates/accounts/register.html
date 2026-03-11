@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Register — Portfolio{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-card" data-reveal="up">
+      <div class="auth-header">
+        <h1>Create Account</h1>
+        <p>Join to access the full portfolio</p>
+      </div>
+
+      <form method="POST" class="auth-form">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<span class="form-error">{{ form.first_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<span class="form-error">{{ form.last_name.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+        {% for field in form %}
+          {% if field.name not in "first_name,last_name" %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<span class="form-error">{{ field.errors.0 }}</span>{% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-full">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>or continue with</span></div>
+      <div class="oauth-buttons">
+        <a href="/accounts/google/login/" class="oauth-btn oauth-google">
+          <i class="fab fa-google"></i> Google
+        </a>
+        <a href="/accounts/github/login/" class="oauth-btn oauth-github">
+          <i class="fab fa-github"></i> GitHub
+        </a>
+      </div>
+
+      <div class="auth-footer">
+        Already have an account? <a href="/accounts/login/">Sign in</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

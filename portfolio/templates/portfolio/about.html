@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}About — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="page-tag">Get to know me</p>
+    <h1 class="page-title">About <span class="highlight">Me</span></h1>
+  </div>
+</section>
+
+<section class="about-section">
+  <div class="container">
+    <div class="about-grid">
+      <!-- Profile Sidebar -->
+      <div class="about-sidebar" data-reveal="left">
+        <div class="about-image-wrap">
+          {% if profile and profile.profile_image %}
+          <img src="{{ profile.profile_image.url }}" alt="{{ profile.name }}" class="about-img" />
+          {% else %}
+          <div class="about-img-placeholder"><i class="fas fa-user"></i></div>
+          {% endif %}
+        </div>
+        {% if profile and profile.cv_file %}
+        <a href="/download-cv/" class="btn btn-primary btn-full">
+          <i class="fas fa-download"></i> Download CV
+        </a>
+        {% endif %}
+        <div class="about-quick-info">
+          {% if profile and profile.email %}
+          <div class="info-item">
+            <i class="fas fa-envelope"></i>
+            <span>{{ profile.email }}</span>
+          </div>
+          {% endif %}
+          <div class="info-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Available Worldwide</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="about-main" data-reveal="right">
+        <div class="about-intro">
+          <h2>Who am I?</h2>
+          <p>{% if profile %}{{ profile.bio }}{% else %}I'm a passionate Full Stack Developer with expertise in building
+            robust web applications. I love turning complex problems into elegant, user-friendly solutions.{% endif %}
+          </p>
+        </div>
+
+        <!-- Skills -->
+        <div class="skills-section">
+          <h2>My Skills</h2>
+          {% if skills_by_category %}
+          {% for category, skill_list in skills_by_category.items %}
+          <div class="skill-category">
+            <h3>{{ category }}</h3>
+            <div class="skills-grid">
+              {% for skill in skill_list %}
+              <div class="skill-item">
+                <div class="skill-header">
+                  {% if skill.icon_class %}
+                  <i class="{{ skill.icon_class }}"></i>
+                  {% endif %}
+                  <span class="skill-name">{{ skill.name }}</span>
+                  <span class="skill-percent">{{ skill.proficiency }}%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-fill" data-width="{{ skill.proficiency }}"></div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <!-- Default skills if none in DB -->
+          <div class="skills-grid default-skills">
+            {% for skill in skills %}
+            <div class="skill-badge"><span>{{ skill }}</span></div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Experience -->
+        {% if experience %}
+        <div class="timeline-section">
+          <h2>Experience</h2>
+          <div class="timeline">
+            {% for exp in experience %}
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h3>{{ exp.role }}</h3>
+                <p class="timeline-company">{{ exp.company }}</p>
+                <p class="timeline-date">
+                  {{ exp.start_date|date:"M Y" }} —
+                  {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}
+                </p>
+                {% if exp.description %}<p>{{ exp.description }}</p>{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Education -->
+        {% if education %}
+        <div class="timeline-section">
+          <h2>Education</h2>
+          <div class="timeline">
+            {% for edu in education %}
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h3>{{ edu.degree }}</h3>
+                {% if edu.field_of_study %}<p class="timeline-company">{{ edu.field_of_study }}</p>{% endif %}
+                <p class="timeline-company">{{ edu.institution }}</p>
+                <p class="timeline-date">
+                  {{ edu.start_year }} — {% if edu.end_year %}{{ edu.end_year }}{% else %}Present{% endif %}
+                </p>
+                {% if edu.description %}<p>{{ edu.description }}</p>{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Animate skill bars on scroll
+  const skillFills = document.querySelectorAll('.skill-fill');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const width = entry.target.getAttribute('data-width');
+        entry.target.style.width = width + '%';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  skillFills.forEach(el => observer.observe(el));
+</script>
+{% endblock %}

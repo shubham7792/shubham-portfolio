@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Email Confirmation — Portfolio{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-card" style="text-align:center;">
+      <i class="fas fa-envelope-open-text" style="font-size:3rem; color:var(--accent); display:block; margin-bottom:1rem;"></i>
+      <h2 style="margin-bottom:0.75rem;">Confirm Email</h2>
+      {% if confirmation %}
+        <p style="color:var(--text-muted); margin-bottom:1.5rem;">
+          Please confirm that <strong>{{ confirmation.email_address.email }}</strong> is your email address.
+        </p>
+        <form method="POST">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check"></i> Confirm Email
+          </button>
+        </form>
+      {% else %}
+        <p style="color:var(--text-muted); margin-bottom:1.5rem;">
+          This confirmation link is invalid or has expired.
+        </p>
+        <a href="/accounts/email/" class="btn btn-outline">Request New Link</a>
+      {% endif %}
+      <div class="auth-footer" style="margin-top:1.5rem;">
+        <a href="/">Go Home</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
