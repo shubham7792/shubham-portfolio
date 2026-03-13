@@ -2,6 +2,51 @@
    PORTFOLIO — MAIN JAVASCRIPT
    ============================================ */
 
+const canvas = document.getElementById('snowfall');
+const ctx = canvas.getContext('2d');
+let width, height, flakes = [];
+
+function init() {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+  flakes = Array.from({ length: 100 }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    r: Math.random() * 3 + 1, // radius
+    d: Math.random() * 1 // density/speed
+  }));
+}
+
+function draw() {
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.beginPath();
+  flakes.forEach(f => {
+    ctx.moveTo(f.x, f.y);
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+  });
+  ctx.fill();
+  update();
+}
+
+function update() {
+  flakes.forEach(f => {
+    f.y += Math.pow(f.d, 2) + 1;
+    f.x += Math.sin(f.y / 50);
+    if (f.y > height) {
+      f.y = -10;
+      f.x = Math.random() * width;
+    }
+  });
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', init);
+init();
+draw();
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Loader ──────────────────────────────────
