@@ -8,7 +8,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # App URLs
-    
     path('dashboard/', include('dashboard.urls')),
     path('projects/', include('projects.urls')),
     path('contact/', include('contact.urls')),

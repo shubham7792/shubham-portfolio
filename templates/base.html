@@ -62,10 +62,10 @@
       <div class="nav-auth">
         {% if user.is_authenticated %}
         {% if user.is_staff or user.is_superuser %}
-        <a href=\"/dashboard/" class=\"btn btn-ghost btn-sm\"><i class=\"fas fa-tachometer-alt\"></i> Dashboard</a>
+        <a href="/dashboard/" class="btn btn-ghost btn-sm"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         {% endif %}
-        <span class=\"nav-user">{{ user.username }}</span>
-        <a href=\"/accounts/logout/" class=\"btn btn-ghost btn-sm\">Logout</a>
+        <span class="nav-user">{{ user.username }}</span>
+        <a href="/accounts/logout/" class="btn btn-ghost btn-sm">Logout</a>
         {% else %}
         <a href="/accounts/login/" class="btn btn-ghost btn-sm">Login</a>
         <a href="/accounts/register/" class="btn btn-primary btn-sm">Register</a>
