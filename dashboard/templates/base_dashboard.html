@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard{% endblock %} — Admin</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+</head>
+<body class="dash-body">
+
+  <!-- Sidebar -->
+  <aside class="dash-sidebar" id="sidebar">
+    <div class="dash-logo">
+      <div class="dash-logo-icon"><i class="fas fa-code"></i></div>
+      <span>Admin Panel</span>
+    </div>
+
+    <nav class="dash-nav">
+      <div class="dash-nav-group">
+        <span class="dash-nav-label">Overview</span>
+        <a href="{% url 'dashboard' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+          <i class="fas fa-chart-pie"></i> Dashboard
+        </a>
+      </div>
+
+      <div class="dash-nav-group">
+        <span class="dash-nav-label">Portfolio</span>
+        <a href="{% url 'dashboard_profile' %}" class="dash-nav-link {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-user-circle"></i> Profile & CV
+        </a>
+        <a href="{% url 'dashboard_skills' %}" class="dash-nav-link {% if 'skill' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-star"></i> Skills
+        </a>
+        <a href="{% url 'dashboard_education' %}" class="dash-nav-link {% if 'education' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-graduation-cap"></i> Education
+        </a>
+        <a href="{% url 'dashboard_experience' %}" class="dash-nav-link {% if 'experience' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-briefcase"></i> Experience
+        </a>
+      </div>
+
+      <div class="dash-nav-group">
+        <span class="dash-nav-label">Projects</span>
+        <a href="{% url 'dashboard_projects' %}" class="dash-nav-link {% if 'project' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-folder-open"></i> Projects
+        </a>
+        <a href="{% url 'dashboard_technologies' %}" class="dash-nav-link {% if 'tech' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-tags"></i> Technologies
+        </a>
+      </div>
+
+      <div class="dash-nav-group">
+        <span class="dash-nav-label">Manage</span>
+        <a href="{% url 'dashboard_messages' %}" class="dash-nav-link {% if 'message' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-envelope"></i> Messages
+          {% with new_count=new_messages_count %}
+            {% if new_count %}<span class="dash-badge">{{ new_count }}</span>{% endif %}
+          {% endwith %}
+        </a>
+        <a href="{% url 'dashboard_users' %}" class="dash-nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="fas fa-users"></i> Users
+        </a>
+      </div>
+
+      <div class="dash-nav-group">
+        <span class="dash-nav-label">Links</span>
+        <a href="/" class="dash-nav-link" target="_blank">
+          <i class="fas fa-external-link-alt"></i> View Site
+        </a>
+        <a href="/admin/" class="dash-nav-link">
+          <i class="fas fa-cog"></i> Django Admin
+        </a>
+        <a href="{% url 'logout' %}" class="dash-nav-link dash-logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <div class="dash-main">
+
+    <!-- Topbar -->
+    <header class="dash-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="dash-topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+      <div class="dash-topbar-user">
+        <div class="dash-avatar">{{ request.user.username|first|upper }}</div>
+        <span class="dash-username">{{ request.user.username }}</span>
+      </div>
+    </header>
+
+    <!-- Alerts -->
+    {% if messages %}
+    <div style="padding: 1rem 1.5rem 0;">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" style="margin-bottom:0.5rem;">
+        {{ message }}
+        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Page Content -->
+    <div class="dash-content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    sidebarToggle?.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Skills{% endblock %}
+{% block page_title %}Manage Skills{% endblock %}
+
+{% block content %}
+<div class="dash-card-header" style="margin-bottom:1.25rem;padding:0">
+  <h3 style="font-size:1rem;color:var(--text-muted)">{{ skills.count }} skills total</h3>
+  <a href="{% url 'dashboard_skill_add' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Skill</a>
+</div>
+
+<div class="dash-card">
+  {% if skills %}
+  <div class="dash-table-wrap">
+    <table class="dash-table">
+      <thead>
+        <tr><th>Name</th><th>Icon</th><th>Category</th><th>Proficiency</th><th>Order</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for skill in skills %}
+        <tr>
+          <td>
+            {% if skill.icon_class %}<i class="{{ skill.icon_class }}" style="color:var(--accent);margin-right:.5rem"></i>{% endif %}
+            <strong>{{ skill.name }}</strong>
+          </td>
+          <td style="font-size:.8rem;color:var(--text-faint)">{{ skill.icon_class|default:"—" }}</td>
+          <td><span class="dash-tag">{{ skill.get_category_display }}</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:.75rem">
+              <div style="flex:1;height:5px;background:var(--bg-3);border-radius:10px;overflow:hidden;min-width:80px">
+                <div style="height:100%;width:{{ skill.proficiency }}%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:10px"></div>
+              </div>
+              <span style="font-size:.82rem;color:var(--text-muted)">{{ skill.proficiency }}%</span>
+            </div>
+          </td>
+          <td style="color:var(--text-muted)">{{ skill.order }}</td>
+          <td>
+            <div class="table-actions">
+              <a href="{% url 'dashboard_skill_edit' skill.pk %}" class="icon-btn" title="Edit"><i class="fas fa-edit"></i></a>
+              <form method="POST" action="{% url 'dashboard_skill_delete' skill.pk %}" style="display:inline" onsubmit="return confirm('Delete {{ skill.name }}?')">
+                {% csrf_token %}
+                <button type="submit" class="icon-btn danger" title="Delete"><i class="fas fa-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="dash-empty"><i class="fas fa-star"></i><p>No skills yet. <a href="{% url 'dashboard_skill_add' %}">Add one!</a></p></div>
+  {% endif %}
+</div>
+{% endblock %}

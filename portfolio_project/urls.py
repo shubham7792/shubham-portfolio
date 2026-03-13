@@ -12,6 +12,7 @@ urlpatterns = [
     path('projects/', include('projects.urls')),
     path('contact/', include('contact.urls')),
     path('accounts/', include('accounts.urls')),
+    path('dashboard/', include('dashboard.urls')),
 
     # AllAuth (OAuth)
     path('accounts/', include('allauth.urls')),

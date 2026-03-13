@@ -1,0 +1,61 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Message from {{ msg.name }}{% endblock %}
+{% block page_title %}Message Detail{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;max-width:900px">
+  <div class="dash-card">
+    <div style="margin-bottom:1.5rem">
+      <h2 style="font-size:1.25rem;margin-bottom:.25rem">{{ msg.subject }}</h2>
+      <p style="color:var(--text-muted);font-size:.9rem">
+        From <strong style="color:var(--text)">{{ msg.name }}</strong>
+        &lt;<a href="mailto:{{ msg.email }}" style="color:var(--accent-2)">{{ msg.email }}</a>&gt;
+        · {{ msg.created_at|date:"F d, Y · H:i" }}
+      </p>
+    </div>
+    <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:1.25rem;line-height:1.8;color:var(--text-muted);white-space:pre-wrap">{{ msg.message }}</div>
+    <div style="margin-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
+      <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject }}" class="btn btn-primary">
+        <i class="fas fa-reply"></i> Reply via Email
+      </a>
+      <a href="{% url 'dashboard_messages' %}" class="btn btn-ghost">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <h3 style="font-size:1rem;margin-bottom:1rem">Message Info</h3>
+    <div style="display:flex;flex-direction:column;gap:.75rem;font-size:.9rem">
+      <div><span style="color:var(--text-muted)">Status</span><br>
+        <span class="status-pill status-{{ msg.status }}">{{ msg.status }}</span>
+      </div>
+      {% if msg.user %}
+      <div><span style="color:var(--text-muted)">Logged-in user</span><br>
+        <strong>{{ msg.user.username }}</strong>
+      </div>
+      {% endif %}
+      <div><span style="color:var(--text-muted)">Received</span><br>
+        {{ msg.created_at|date:"M d, Y" }}
+      </div>
+    </div>
+    <hr style="border-color:var(--border);margin:1rem 0">
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem">Change Status</p>
+    <form method="POST" action="{% url 'dashboard_message_status' msg.pk %}">
+      {% csrf_token %}
+      <select name="status" class="form-input" style="margin-bottom:.75rem" onchange="this.form.submit()">
+        <option value="new" {% if msg.status == 'new' %}selected{% endif %}>New</option>
+        <option value="read" {% if msg.status == 'read' %}selected{% endif %}>Read</option>
+        <option value="replied" {% if msg.status == 'replied' %}selected{% endif %}>Replied</option>
+        <option value="archived" {% if msg.status == 'archived' %}selected{% endif %}>Archived</option>
+      </select>
+    </form>
+    <form method="POST" action="{% url 'dashboard_message_delete' msg.pk %}" onsubmit="return confirm('Delete this message?')">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-ghost btn-full" style="color:#f87171;border-color:rgba(239,68,68,.3)">
+        <i class="fas fa-trash"></i> Delete Message
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

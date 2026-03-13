@@ -1,0 +1,47 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ action }} Skill{% endblock %}
+{% block page_title %}{{ action }} Skill{% endblock %}
+
+{% block content %}
+<div class="dash-card" style="max-width:560px">
+  <div class="dash-card-header">
+    <h3><i class="fas fa-star"></i> {{ action }} Skill</h3>
+  </div>
+  <form method="POST" class="dash-form">
+    {% csrf_token %}
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Skill Name</label>
+        {{ form.name }}{% if form.name.errors %}<span class="form-error">{{ form.name.errors.0 }}</span>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        {{ form.category }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Icon Class <small>(FontAwesome, e.g. fab fa-python)</small></label>
+      {{ form.icon_class }}
+      {% if form.icon_class.value %}
+      <div style="margin-top:.5rem;font-size:.9rem;color:var(--text-muted)">
+        Preview: <i class="{{ form.icon_class.value }}" style="color:var(--accent);font-size:1.2rem;margin-left:.5rem"></i>
+      </div>
+      {% endif %}
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Proficiency (0–100)</label>
+        {{ form.proficiency }}
+      </div>
+      <div class="form-group">
+        <label>Display Order</label>
+        {{ form.order }}
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Skill</button>
+      <a href="{% url 'dashboard_skills' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

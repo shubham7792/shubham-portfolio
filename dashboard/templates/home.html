@@ -1,0 +1,136 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+
+<!-- Stats Cards -->
+<div class="dash-stats-grid">
+  <div class="dash-stat-card">
+    <div class="stat-icon" style="background: rgba(124,106,247,0.15); color:#7c6af7">
+      <i class="fas fa-folder-open"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-number">{{ stats.projects }}</span>
+      <span class="stat-label">Projects</span>
+    </div>
+    <a href="{% url 'dashboard_projects' %}" class="stat-link"><i class="fas fa-arrow-right"></i></a>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="stat-icon" style="background: rgba(244,114,182,0.15); color:#f472b6">
+      <i class="fas fa-star"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-number">{{ stats.skills }}</span>
+      <span class="stat-label">Skills</span>
+    </div>
+    <a href="{% url 'dashboard_skills' %}" class="stat-link"><i class="fas fa-arrow-right"></i></a>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="stat-icon" style="background: rgba(45,212,191,0.15); color:#2dd4bf">
+      <i class="fas fa-envelope"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-number">{{ stats.messages }}</span>
+      <span class="stat-label">Messages
+        {% if stats.new_msgs %}<span class="dash-badge" style="margin-left:.4rem">{{ stats.new_msgs }} new</span>{% endif %}
+      </span>
+    </div>
+    <a href="{% url 'dashboard_messages' %}" class="stat-link"><i class="fas fa-arrow-right"></i></a>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="stat-icon" style="background: rgba(251,191,36,0.15); color:#fbbf24">
+      <i class="fas fa-users"></i>
+    </div>
+    <div class="stat-info">
+      <span class="stat-number">{{ stats.users }}</span>
+      <span class="stat-label">Users</span>
+    </div>
+    <a href="{% url 'dashboard_users' %}" class="stat-link"><i class="fas fa-arrow-right"></i></a>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="dash-section-title">Quick Actions</div>
+<div class="quick-actions">
+  <a href="{% url 'dashboard_project_add' %}" class="quick-action-btn">
+    <i class="fas fa-plus"></i> Add Project
+  </a>
+  <a href="{% url 'dashboard_skill_add' %}" class="quick-action-btn">
+    <i class="fas fa-plus"></i> Add Skill
+  </a>
+  <a href="{% url 'dashboard_education_add' %}" class="quick-action-btn">
+    <i class="fas fa-plus"></i> Add Education
+  </a>
+  <a href="{% url 'dashboard_experience_add' %}" class="quick-action-btn">
+    <i class="fas fa-plus"></i> Add Experience
+  </a>
+  <a href="{% url 'dashboard_tech_add' %}" class="quick-action-btn">
+    <i class="fas fa-plus"></i> Add Technology
+  </a>
+  <a href="{% url 'dashboard_profile' %}" class="quick-action-btn">
+    <i class="fas fa-edit"></i> Edit Profile
+  </a>
+</div>
+
+<div class="dash-two-col">
+  <!-- Recent Messages -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3><i class="fas fa-envelope"></i> Recent Messages</h3>
+      <a href="{% url 'dashboard_messages' %}">View all</a>
+    </div>
+    {% if recent_messages %}
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr><th>From</th><th>Subject</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for msg in recent_messages %}
+          <tr onclick="window.location='{% url 'dashboard_message_detail' msg.pk %}'" style="cursor:pointer">
+            <td><strong>{{ msg.name }}</strong><br><small style="color:var(--text-faint)">{{ msg.email }}</small></td>
+            <td>{{ msg.subject|truncatechars:35 }}</td>
+            <td><span class="status-pill status-{{ msg.status }}">{{ msg.status }}</span></td>
+            <td style="color:var(--text-faint);font-size:.82rem">{{ msg.created_at|date:"M d" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="dash-empty"><i class="fas fa-inbox"></i><p>No messages yet</p></div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Projects -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3><i class="fas fa-folder-open"></i> Recent Projects</h3>
+      <a href="{% url 'dashboard_projects' %}">View all</a>
+    </div>
+    {% if recent_projects %}
+    <div class="dash-project-list">
+      {% for project in recent_projects %}
+      <div class="dash-project-item">
+        <div class="dash-project-info">
+          <span class="dash-project-title">{{ project.title }}</span>
+          <span class="status-pill status-{{ project.status }}">{{ project.get_status_display }}</span>
+        </div>
+        <div class="dash-project-actions">
+          <a href="{% url 'dashboard_project_edit' project.pk %}" class="icon-btn" title="Edit">
+            <i class="fas fa-edit"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="dash-empty"><i class="fas fa-code"></i><p>No projects yet</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

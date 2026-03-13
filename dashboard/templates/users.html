@@ -1,0 +1,59 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Users{% endblock %}
+{% block page_title %}Manage Users{% endblock %}
+
+{% block content %}
+<div class="dash-card">
+  {% if users %}
+  <div class="dash-table-wrap">
+    <table class="dash-table">
+      <thead>
+        <tr><th>User</th><th>Email</th><th>Joined</th><th>Role</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:.75rem">
+              <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--pink));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.9rem;flex-shrink:0">
+                {{ u.username|first|upper }}
+              </div>
+              <div>
+                <strong>{{ u.username }}</strong>
+                {% if u == request.user %}<span style="font-size:.75rem;color:var(--accent-2);margin-left:.4rem">(you)</span>{% endif %}
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--text-muted)">{{ u.email|default:"—" }}</td>
+          <td style="color:var(--text-faint);font-size:.85rem">{{ u.date_joined|date:"M d, Y" }}</td>
+          <td>
+            {% if u.is_superuser %}
+            <span class="status-pill" style="background:rgba(251,191,36,.15);color:#fbbf24;border-color:rgba(251,191,36,.3)">Superuser</span>
+            {% elif u.is_staff %}
+            <span class="status-pill status-live">Staff</span>
+            {% else %}
+            <span class="status-pill" style="background:var(--bg-3);color:var(--text-muted);border-color:var(--border)">Member</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u != request.user and not u.is_superuser %}
+            <form method="POST" action="{% url 'dashboard_user_toggle' u.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-ghost btn-sm">
+                {% if u.is_staff %}<i class="fas fa-user-minus"></i> Remove Staff{% else %}<i class="fas fa-user-shield"></i> Make Staff{% endif %}
+              </button>
+            </form>
+            {% else %}
+            <span style="color:var(--text-faint);font-size:.85rem">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="dash-empty"><i class="fas fa-users"></i><p>No users yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

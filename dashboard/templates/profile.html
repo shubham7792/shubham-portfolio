@@ -1,0 +1,81 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block page_title %}Profile & CV{% endblock %}
+
+{% block content %}
+<div class="dash-card" style="max-width:760px">
+  <div class="dash-card-header">
+    <h3><i class="fas fa-user-circle"></i> Edit Profile</h3>
+  </div>
+  <form method="POST" enctype="multipart/form-data" class="dash-form">
+    {% csrf_token %}
+
+    <div class="form-section-title">Basic Info</div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Full Name</label>
+        {{ form.name }}{% if form.name.errors %}<span class="form-error">{{ form.name.errors.0 }}</span>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Title / Role</label>
+        {{ form.title }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tagline <small>(short one-liner)</small></label>
+      {{ form.tagline }}
+    </div>
+    <div class="form-group">
+      <label>Bio</label>
+      {{ form.bio }}
+    </div>
+
+    <div class="form-section-title">Media</div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Profile Image</label>
+        {% if profile and profile.profile_image %}
+          <img src="{{ profile.profile_image.url }}" alt="Current" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid var(--border);margin-bottom:.5rem;display:block">
+        {% endif %}
+        {{ form.profile_image }}
+      </div>
+      <div class="form-group">
+        <label>CV File <small>(PDF)</small></label>
+        {% if profile and profile.cv_file %}
+          <a href="{{ profile.cv_file.url }}" target="_blank" style="font-size:.85rem;color:var(--accent-2);display:block;margin-bottom:.5rem"><i class="fas fa-file-pdf"></i> Current CV</a>
+        {% endif %}
+        {{ form.cv_file }}
+      </div>
+    </div>
+
+    <div class="form-section-title">Contact & Social</div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label><i class="fas fa-envelope" style="color:var(--accent)"></i> Email</label>
+        {{ form.email }}
+      </div>
+      <div class="form-group">
+        <label><i class="fab fa-github" style="color:var(--accent)"></i> GitHub URL</label>
+        {{ form.github_url }}
+      </div>
+      <div class="form-group">
+        <label><i class="fab fa-linkedin" style="color:#0A66C2"></i> LinkedIn URL</label>
+        {{ form.linkedin_url }}
+      </div>
+      <div class="form-group">
+        <label><i class="fab fa-twitter" style="color:#1DA1F2"></i> Twitter URL</label>
+        {{ form.twitter_url }}
+      </div>
+      <div class="form-group">
+        <label><i class="fab fa-instagram" style="color:#E1306C"></i> Instagram URL</label>
+        {{ form.instagram_url }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Profile</button>
+      <a href="{% url 'dashboard' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
