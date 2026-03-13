@@ -8,11 +8,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # App URLs
-    path('', include('portfolio.urls')),
+    
+    path('dashboard/', include('dashboard.urls')),
     path('projects/', include('projects.urls')),
     path('contact/', include('contact.urls')),
     path('accounts/', include('accounts.urls')),
-    path('dashboard/', include('dashboard.urls')),
+    path('', include('portfolio.urls')),
+    
 
     # AllAuth (OAuth)
     path('accounts/', include('allauth.urls')),
