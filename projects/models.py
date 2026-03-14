@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 class Technology(models.Model):
@@ -23,7 +24,7 @@ class Project(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField()
     short_description = models.CharField(max_length=300, blank=True)
-    image = models.ImageField(upload_to='projects/', blank=True, null=True)
+    image = CloudinaryField('image')
     technologies = models.ManyToManyField(Technology, blank=True)
     github_url = models.URLField(blank=True)
     live_url = models.URLField(blank=True)

@@ -17,7 +17,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage', # Ye pehle aana chahiye
     'django.contrib.staticfiles',
+    'cloudinary',
     'django.contrib.sites',
 
     # Third party
@@ -200,3 +202,12 @@ ACCOUNT_FORMS = {}
 ACCOUNT_SIGNUP_FORM_CLASS = None
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
+}
+
+# 3. Media settings ko Cloudinary par point karein
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
