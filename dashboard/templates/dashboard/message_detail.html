@@ -3,59 +3,71 @@
 {% block page_title %}Message Detail{% endblock %}
 
 {% block content %}
-<div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;max-width:900px">
-  <div class="dash-card">
-    <div style="margin-bottom:1.5rem">
-      <h2 style="font-size:1.25rem;margin-bottom:.25rem">{{ msg.subject }}</h2>
-      <p style="color:var(--text-muted);font-size:.9rem">
-        From <strong style="color:var(--text)">{{ msg.name }}</strong>
-        &lt;<a href="mailto:{{ msg.email }}" style="color:var(--accent-2)">{{ msg.email }}</a>&gt;
-        · {{ msg.created_at|date:"F d, Y · H:i" }}
-      </p>
-    </div>
-    <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:1.25rem;line-height:1.8;color:var(--text-muted);white-space:pre-wrap">{{ msg.message }}</div>
-    <div style="margin-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap">
-      <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject }}" class="btn btn-primary">
-        <i class="fas fa-reply"></i> Reply via Email
-      </a>
-      <a href="{% url 'dashboard_messages' %}" class="btn btn-ghost">
-        <i class="fas fa-arrow-left"></i> Back
-      </a>
+<div style="display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start; max-width:960px">
+
+  <div>
+    <div class="dash-card">
+      <div style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border)">
+        <div style="display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--pink));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1rem;flex-shrink:0">
+            {{ msg.name|first|upper }}
+          </div>
+          <div>
+            <h2 style="font-size:1.1rem; margin-bottom:.1rem">{{ msg.name }}</h2>
+            <a href="mailto:{{ msg.email }}" style="color:var(--accent-2); font-size:.88rem">{{ msg.email }}</a>
+          </div>
+          <span class="status-pill status-{{ msg.status }}" style="margin-left:auto">{{ msg.status }}</span>
+        </div>
+        <h3 style="font-size:1.25rem; margin-bottom:.25rem">{{ msg.subject }}</h3>
+        <p style="font-size:.82rem; color:var(--text-faint)">
+          <i class="fas fa-clock" style="margin-right:.3rem"></i>{{ msg.created_at|date:"F d, Y H:i" }}
+          {% if msg.user %} &middot; <strong style="color:var(--text-muted)">{{ msg.user.username }}</strong>{% endif %}
+        </p>
+      </div>
+      <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;line-height:1.85;color:var(--text-muted);white-space:pre-wrap;font-size:.95rem">{{ msg.message }}</div>
+      <div style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap">
+        <a href="{% url 'dashboard_message_reply' msg.pk %}" class="btn btn-primary"><i class="fas fa-reply"></i> Reply via Email</a>
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject }}" class="btn btn-outline"><i class="fas fa-external-link-alt"></i> Open in Mail App</a>
+        <a href="{% url 'dashboard_messages' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Back</a>
+      </div>
     </div>
   </div>
 
-  <div class="dash-card">
-    <h3 style="font-size:1rem;margin-bottom:1rem">Message Info</h3>
-    <div style="display:flex;flex-direction:column;gap:.75rem;font-size:.9rem">
-      <div><span style="color:var(--text-muted)">Status</span><br>
-        <span class="status-pill status-{{ msg.status }}">{{ msg.status }}</span>
+  <div>
+    <div class="dash-card">
+      <h3 style="font-size:.95rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">
+        <i class="fas fa-info-circle" style="color:var(--accent)"></i> Message Info
+      </h3>
+      <div style="display:flex;flex-direction:column;gap:.85rem;font-size:.88rem;margin-bottom:1.25rem">
+        <div><span style="color:var(--text-faint);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em">Status</span>
+          <div style="margin-top:.3rem"><span class="status-pill status-{{ msg.status }}">{{ msg.status }}</span></div></div>
+        <div><span style="color:var(--text-faint);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em">From</span>
+          <div style="margin-top:.3rem">{{ msg.name }}</div></div>
+        <div><span style="color:var(--text-faint);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em">Email</span>
+          <div style="margin-top:.3rem"><a href="mailto:{{ msg.email }}" style="color:var(--accent-2)">{{ msg.email }}</a></div></div>
+        <div><span style="color:var(--text-faint);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em">Received</span>
+          <div style="margin-top:.3rem;color:var(--text-muted)">{{ msg.created_at|date:"M d, Y H:i" }}</div></div>
       </div>
-      {% if msg.user %}
-      <div><span style="color:var(--text-muted)">Logged-in user</span><br>
-        <strong>{{ msg.user.username }}</strong>
-      </div>
-      {% endif %}
-      <div><span style="color:var(--text-muted)">Received</span><br>
-        {{ msg.created_at|date:"M d, Y" }}
-      </div>
+      <p style="font-size:.78rem;color:var(--text-faint);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">Change Status</p>
+      <form method="POST" action="{% url 'dashboard_message_status' msg.pk %}">
+        {% csrf_token %}
+        <select name="status" class="form-input" style="font-size:.85rem;margin-bottom:.75rem" onchange="this.form.submit()">
+          <option value="new"      {% if msg.status == 'new'      %}selected{% endif %}>🔵 New</option>
+          <option value="read"     {% if msg.status == 'read'     %}selected{% endif %}>⚪ Read</option>
+          <option value="replied"  {% if msg.status == 'replied'  %}selected{% endif %}>🟢 Replied</option>
+          <option value="archived" {% if msg.status == 'archived' %}selected{% endif %}>🟡 Archived</option>
+        </select>
+      </form>
+      <a href="{% url 'dashboard_message_reply' msg.pk %}" class="btn btn-primary btn-full" style="margin-bottom:.6rem">
+        <i class="fas fa-reply"></i> Reply Now
+      </a>
+      <form method="POST" action="{% url 'dashboard_message_delete' msg.pk %}" onsubmit="return confirm('Delete permanently?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost btn-full" style="color:#f87171;border-color:rgba(239,68,68,.25)">
+          <i class="fas fa-trash"></i> Delete Message
+        </button>
+      </form>
     </div>
-    <hr style="border-color:var(--border);margin:1rem 0">
-    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem">Change Status</p>
-    <form method="POST" action="{% url 'dashboard_message_status' msg.pk %}">
-      {% csrf_token %}
-      <select name="status" class="form-input" style="margin-bottom:.75rem" onchange="this.form.submit()">
-        <option value="new" {% if msg.status == 'new' %}selected{% endif %}>New</option>
-        <option value="read" {% if msg.status == 'read' %}selected{% endif %}>Read</option>
-        <option value="replied" {% if msg.status == 'replied' %}selected{% endif %}>Replied</option>
-        <option value="archived" {% if msg.status == 'archived' %}selected{% endif %}>Archived</option>
-      </select>
-    </form>
-    <form method="POST" action="{% url 'dashboard_message_delete' msg.pk %}" onsubmit="return confirm('Delete this message?')">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-ghost btn-full" style="color:#f87171;border-color:rgba(239,68,68,.3)">
-        <i class="fas fa-trash"></i> Delete Message
-      </button>
-    </form>
   </div>
 </div>
 {% endblock %}

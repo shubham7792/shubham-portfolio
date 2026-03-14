@@ -46,32 +46,27 @@ body {
   line-height: 1.65;
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
 }
 
-.snow-container {
+#snow-canvas,
+#fog-canvas {
   position: fixed;
-  top: -10px;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   pointer-events: none;
-  z-index: 1000;
 }
 
-.snowflake {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: white;
-  border-radius: 50%;
-  filter: blur(1px);
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh);
-  }
+.navbar,
+main,
+footer,
+.messages-container,
+#loader,
+#snow-toggle {
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Typography ── */

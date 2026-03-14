@@ -140,129 +140,249 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ============================================
    SNOW EFFECT — Canvas based
+ /* ============================================
+   SNOW + WIND + FOG EFFECT
+   — Behind content (z-index: 0)
+   — Wind gusts shift flakes dynamically
+   — Fog layers drift slowly across screen
    ============================================ */
 
 class SnowEffect {
   constructor() {
+    // ── Two canvases: fog behind snow ──────────
+    this.fogCanvas = document.createElement('canvas');
+    this.fogCtx = this.fogCanvas.getContext('2d');
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.flakes = [];
-    this.count = 120; // number of snowflakes
 
-    // Canvas styles — fixed, behind everything, pointer-events off
-    Object.assign(this.canvas.style, {
-      position: 'fixed',
-      top: '0', left: '0',
-      width: '100%', height: '100%',
-      pointerEvents: 'none',
-      zIndex: '9998',
-      opacity: '0.75',
-    });
+    // Fog canvas — lowest, behind everything
+    this._styleCanvas(this.fogCanvas, '-1');
+    this.fogCanvas.id = 'fog-canvas';
 
+    // Snow canvas — just above fog, behind page content
+    this._styleCanvas(this.canvas, '0');
     this.canvas.id = 'snow-canvas';
-    document.body.appendChild(this.canvas);
+
+    // Insert BEFORE first child so they're behind all content
+    document.body.insertBefore(this.fogCanvas, document.body.firstChild);
+    document.body.insertBefore(this.canvas, document.body.firstChild);
+
+    // ── State ──────────────────────────────────
+    this.flakes = [];
+    this.fogBlobs = [];
+    this.count = 140;
+    this._paused = false;
+
+    // ── Wind system ────────────────────────────
+    this.wind = 0;       // current wind speed (px/frame)
+    this.windTarget = 0;      // target wind (changes in gusts)
+    this.windTimer = 0;       // frames until next gust
 
     this.resize();
-    this.init();
+    this.initFlakes();
+    this.initFog();
     this.animate();
 
     window.addEventListener('resize', () => this.resize());
   }
 
-  resize() {
-    this.W = this.canvas.width = window.innerWidth;
-    this.H = this.canvas.height = window.innerHeight;
+  _styleCanvas(canvas, zIndex) {
+    Object.assign(canvas.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+      zIndex: zIndex,
+    });
   }
 
-  // Create one snowflake with random properties
+  resize() {
+    this.W = window.innerWidth;
+    this.H = window.innerHeight;
+    this.canvas.width = this.W;
+    this.canvas.height = this.H;
+    this.fogCanvas.width = this.W;
+    this.fogCanvas.height = this.H;
+  }
+
+  // ── Wind ───────────────────────────────────────
+  updateWind() {
+    this.windTimer--;
+    if (this.windTimer <= 0) {
+      // Schedule next gust: every 3–9 seconds at 60fps
+      this.windTimer = Math.random() * 360 + 180;
+      // New wind target: -2.5 (left) to +2.5 (right), often rightward
+      this.windTarget = (Math.random() * 5 - 1.5);
+    }
+    // Smoothly interpolate toward target (inertia)
+    this.wind += (this.windTarget - this.wind) * 0.012;
+  }
+
+  // ── Snowflakes ─────────────────────────────────
   createFlake() {
     return {
       x: Math.random() * this.W,
-      y: Math.random() * this.H - this.H,  // start above viewport
-      r: Math.random() * 3.5 + 0.8,        // radius 0.8–4.3px
-      speed: Math.random() * 1.2 + 0.4,        // fall speed
-      drift: Math.random() * 0.8 - 0.4,        // horizontal drift
-      angle: Math.random() * Math.PI * 2,      // wobble phase
-      wobble: Math.random() * 0.03 + 0.005,    // wobble speed
-      opacity: Math.random() * 0.6 + 0.3,
+      y: Math.random() * this.H - this.H,
+      r: Math.random() * 3.2 + 0.6,
+      speed: Math.random() * 1.1 + 0.35,
+      drift: Math.random() * 0.5 - 0.25,   // personal micro-drift
+      angle: Math.random() * Math.PI * 2,
+      wobble: Math.random() * 0.025 + 0.004,
+      opacity: Math.random() * 0.55 + 0.25,
+      spin: Math.random() * 0.04 - 0.02,  // slow rotation
     };
   }
 
-  init() {
-    // Spread flakes across full height initially
+  initFlakes() {
     for (let i = 0; i < this.count; i++) {
       const f = this.createFlake();
-      f.y = Math.random() * this.H; // fill screen on start
+      f.y = Math.random() * this.H; // pre-scatter on first load
       this.flakes.push(f);
     }
   }
 
-  draw() {
+  drawFlakes() {
     this.ctx.clearRect(0, 0, this.W, this.H);
+    this.updateWind();
 
     this.flakes.forEach(f => {
-      // Wobble horizontally
+      // Wind pushes all flakes, personal drift adds variety
       f.angle += f.wobble;
-      f.x += Math.sin(f.angle) * 0.6 + f.drift;
+      f.x += this.wind + f.drift + Math.sin(f.angle) * 0.5;
       f.y += f.speed;
 
-      // Reset when off screen
-      if (f.y > this.H + 10 || f.x < -20 || f.x > this.W + 20) {
+      // Wrap horizontally (wind can carry flakes off-screen)
+      if (f.x > this.W + 20) f.x = -20;
+      if (f.x < -20) f.x = this.W + 20;
+      // Reset when fallen off bottom
+      if (f.y > this.H + 10) {
         Object.assign(f, this.createFlake());
         f.y = -5;
+        f.x = Math.random() * this.W;
       }
 
-      // Draw snowflake — soft glowing circle
-      const grad = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-      grad.addColorStop(0, `rgba(255,255,255,${f.opacity})`);
-      grad.addColorStop(0.5, `rgba(220,210,255,${f.opacity * 0.7})`);
-      grad.addColorStop(1, `rgba(180,160,255,0)`);
+      // Soft glowing snowflake (radial gradient)
+      const g = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2);
+      g.addColorStop(0, `rgba(255,255,255,${f.opacity})`);
+      g.addColorStop(0.4, `rgba(210,200,255,${f.opacity * 0.6})`);
+      g.addColorStop(1, `rgba(160,140,255,0)`);
 
       this.ctx.beginPath();
-      this.ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      this.ctx.fillStyle = grad;
+      this.ctx.arc(f.x, f.y, f.r * 2, 0, Math.PI * 2);
+      this.ctx.fillStyle = g;
       this.ctx.fill();
     });
   }
 
+  // ── Fog ─────────────────────────────────────────
+  initFog() {
+    // 6 large soft fog blobs at different heights & speeds
+    const fogColors = [
+      'rgba(80,60,140,',   // deep purple
+      'rgba(40,30,80,',    // dark indigo
+      'rgba(100,80,160,',  // mid purple
+      'rgba(60,50,120,',   // muted violet
+      'rgba(30,25,70,',    // near-black purple
+      'rgba(90,70,150,',   // light purple
+    ];
+    for (let i = 0; i < 6; i++) {
+      this.fogBlobs.push({
+        x: Math.random() * this.W * 1.5 - this.W * 0.25,
+        y: Math.random() * this.H,
+        w: Math.random() * this.W * 0.7 + this.W * 0.4,  // wide blobs
+        h: Math.random() * 180 + 80,
+        speed: Math.random() * 0.18 + 0.04,   // slow horizontal drift
+        opacity: Math.random() * 0.10 + 0.04,  // very subtle
+        color: fogColors[i],
+        phase: Math.random() * Math.PI * 2,   // vertical breathing phase
+        breathe: Math.random() * 0.005 + 0.002,
+      });
+    }
+  }
+
+  drawFog() {
+    this.fogCtx.clearRect(0, 0, this.W, this.H);
+
+    this.fogBlobs.forEach(blob => {
+      // Drift rightward (same wind direction, much slower)
+      blob.x += blob.speed + this.wind * 0.08;
+      blob.phase += blob.breathe;
+
+      // Wrap around screen
+      if (blob.x - blob.w / 2 > this.W + 100) blob.x = -blob.w / 2 - 100;
+      if (blob.x + blob.w / 2 < -100) blob.x = this.W + blob.w / 2 + 100;
+
+      // Breathing: slight vertical shift
+      const yOff = Math.sin(blob.phase) * 18;
+
+      // Draw elliptical gradient blob
+      const gx = this.fogCtx.createRadialGradient(
+        blob.x, blob.y + yOff, 0,
+        blob.x, blob.y + yOff, blob.w / 2
+      );
+      gx.addColorStop(0, blob.color + blob.opacity + ')');
+      gx.addColorStop(0.5, blob.color + (blob.opacity * 0.5) + ')');
+      gx.addColorStop(1, blob.color + '0)');
+
+      this.fogCtx.save();
+      this.fogCtx.scale(1, blob.h / blob.w); // squash into ellipse
+      this.fogCtx.beginPath();
+      this.fogCtx.arc(blob.x, (blob.y + yOff) / (blob.h / blob.w), blob.w / 2, 0, Math.PI * 2);
+      this.fogCtx.fillStyle = gx;
+      this.fogCtx.fill();
+      this.fogCtx.restore();
+    });
+
+    // Extra: thin ground-level fog strip at bottom
+    const groundFog = this.fogCtx.createLinearGradient(0, this.H - 120, 0, this.H);
+    groundFog.addColorStop(0, 'rgba(60,40,120,0)');
+    groundFog.addColorStop(1, 'rgba(60,40,120,0.18)');
+    this.fogCtx.fillStyle = groundFog;
+    this.fogCtx.fillRect(0, this.H - 120, this.W, 120);
+  }
+
+  // ── Animate ─────────────────────────────────────
   animate() {
-    this.draw();
+    this.drawFog();
+    this.drawFlakes();
     this._raf = requestAnimationFrame(() => this.animate());
   }
 
-  // Toggle on/off
+  // ── Toggle ──────────────────────────────────────
   toggle() {
     if (this._paused) {
       this._paused = false;
       this.animate();
       this.canvas.style.display = 'block';
+      this.fogCanvas.style.display = 'block';
     } else {
       this._paused = true;
       cancelAnimationFrame(this._raf);
       this.canvas.style.display = 'none';
+      this.fogCanvas.style.display = 'none';
     }
   }
 
   destroy() {
     cancelAnimationFrame(this._raf);
     this.canvas.remove();
+    this.fogCanvas.remove();
   }
 }
 
-// ── Init Snow + Toggle Button ─────────────────
+// ── Init Snow + Toggle Button ─────────────────────
 (function initSnow() {
-  // Only init after DOM is ready
   const start = () => {
-    // Check if user previously disabled snow
     const snowEnabled = localStorage.getItem('snow') !== 'off';
-
     const snow = new SnowEffect();
-    if (!snowEnabled) snow.toggle(); // start hidden if disabled
+    if (!snowEnabled) snow.toggle();
 
-    // Create floating toggle button
+    // Floating toggle button — bottom right
     const btn = document.createElement('button');
     btn.id = 'snow-toggle';
-    btn.title = 'Toggle snow effect';
+    btn.title = 'Toggle snow & fog effect';
     btn.innerHTML = snowEnabled ? '❄️' : '🌤️';
     btn.setAttribute('aria-label', 'Toggle snow');
 
@@ -275,27 +395,26 @@ class SnowEffect {
       height: '44px',
       borderRadius: '50%',
       border: '1px solid rgba(255,255,255,0.12)',
-      background: 'rgba(13,13,16,0.75)',
-      backdropFilter: 'blur(10px)',
+      background: 'rgba(13,13,16,0.80)',
+      backdropFilter: 'blur(12px)',
       fontSize: '1.2rem',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
       transition: 'transform 0.2s, box-shadow 0.2s',
       lineHeight: '1',
     });
 
     btn.addEventListener('mouseenter', () => {
       btn.style.transform = 'scale(1.15)';
-      btn.style.boxShadow = '0 6px 25px rgba(124,106,247,0.4)';
+      btn.style.boxShadow = '0 6px 28px rgba(124,106,247,0.5)';
     });
     btn.addEventListener('mouseleave', () => {
       btn.style.transform = 'scale(1)';
-      btn.style.boxShadow = '0 4px 20px rgba(0,0,0,0.4)';
+      btn.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
     });
-
     btn.addEventListener('click', () => {
       snow.toggle();
       const isOn = snow.canvas.style.display !== 'none';

@@ -1,0 +1,26 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ action }} Technology{% endblock %}
+{% block page_title %}{{ action }} Technology{% endblock %}
+{% block content %}
+<div class="dash-card" style="max-width:440px">
+  <div class="dash-card-header"><h3><i class="fas fa-tag"></i> {{ action }} Technology</h3></div>
+  <form method="POST" class="dash-form">
+    {% csrf_token %}
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Technology Name</label>
+        {{ form.name }}{% if form.name.errors %}<span class="form-error">{{ form.name.errors.0 }}</span>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        {{ form.color }}
+        <small style="color:var(--text-faint)">Used for tag badge</small>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      <a href="{% url 'dashboard_technologies' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -446,3 +446,60 @@ def user_toggle_staff(request, pk):
         user.save()
         messages.success(request, f"{'Staff access granted to' if user.is_staff else 'Staff access removed from'} {user.username}.")
     return redirect('dashboard_users')
+
+
+    # ── Message Reply ─────────────────────────────────────────────────
+ 
+class MessageReplyForm(forms.Form):
+    reply_message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-textarea',
+            'rows': 7,
+            'placeholder': 'Type your reply here...'
+        }),
+        label='Reply Message'
+    )
+ 
+ 
+@login_required
+@admin_required
+def message_reply(request, pk):
+    msg = get_object_or_404(Message, pk=pk)
+ 
+    if request.method == 'POST':
+        form = MessageReplyForm(request.POST)
+        if form.is_valid():
+            reply_body = form.cleaned_data['reply_message']
+ 
+            from django.core.mail import send_mail
+            from django.conf import settings as conf_settings
+ 
+            subject = f"Re: {msg.subject}"
+            email_body = (
+                f"Hi {msg.name},\n\n"
+                f"{reply_body}\n\n"
+                f"---\n"
+                f"This is a reply to your message: \"{msg.subject}\"\n"
+                f"Sent via Portfolio Contact System"
+            )
+ 
+            try:
+                send_mail(
+                    subject=subject,
+                    message=email_body,
+                    from_email=conf_settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[msg.email],
+                    fail_silently=False,
+                )
+                # Mark as replied
+                msg.status = 'replied'
+                msg.save()
+                messages.success(request, f'Reply sent successfully to {msg.email}!')
+            except Exception as e:
+                messages.error(request, f'Email sending failed: {str(e)}. Check your email settings.')
+ 
+            return redirect('dashboard_message_detail', pk=pk)
+    else:
+        form = MessageReplyForm()
+ 
+    return render(request, 'dashboard/message_reply.html', {'msg': msg, 'form': form})

@@ -42,6 +42,7 @@ urlpatterns = [
     path('messages/<int:pk>/', views.message_detail, name='dashboard_message_detail'),
     path('messages/<int:pk>/status/', views.message_status, name='dashboard_message_status'),
     path('messages/<int:pk>/delete/', views.message_delete, name='dashboard_message_delete'),
+     path('messages/<int:pk>/reply/', views.message_reply, name='dashboard_message_reply'),
 
     # Users
     path('users/', views.user_list, name='dashboard_users'),

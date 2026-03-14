@@ -1,0 +1,106 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Reply to {{ msg.name }}{% endblock %}
+{% block page_title %}Reply to Message{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns:1fr 320px; gap:1.5rem; align-items:start; max-width:960px">
+
+  <!-- Reply Compose -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3><i class="fas fa-reply" style="color:var(--accent)"></i> Compose Reply</h3>
+      <a href="{% url 'dashboard_message_detail' msg.pk %}" style="font-size:.85rem; color:var(--text-muted)">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <!-- To / Subject preview -->
+    <div style="background:var(--bg-3); border:1px solid var(--border); border-radius:10px; padding:1rem 1.25rem; margin-bottom:1.25rem">
+      <div style="display:flex; gap:1rem; margin-bottom:.5rem; font-size:.88rem">
+        <span style="color:var(--text-faint); min-width:50px">To:</span>
+        <span><strong>{{ msg.name }}</strong> &lt;<a href="mailto:{{ msg.email }}" style="color:var(--accent-2)">{{ msg.email }}</a>&gt;</span>
+      </div>
+      <div style="display:flex; gap:1rem; font-size:.88rem">
+        <span style="color:var(--text-faint); min-width:50px">Subject:</span>
+        <span style="color:var(--text-muted)">Re: {{ msg.subject }}</span>
+      </div>
+    </div>
+
+    <!-- Reply Form -->
+    <form method="POST" class="dash-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label style="font-size:.85rem; color:var(--text-muted); margin-bottom:.4rem; display:block">
+          Your Reply
+        </label>
+        {{ form.reply_message }}
+        {% if form.reply_message.errors %}
+          <span class="form-error">{{ form.reply_message.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <!-- Email signature preview -->
+      <div style="background:var(--bg-3); border:1px dashed var(--border); border-radius:8px; padding:.75rem 1rem; margin-bottom:1.25rem; font-size:.82rem; color:var(--text-faint)">
+        <p style="margin-bottom:.25rem">— Auto-appended signature —</p>
+        <p>This is a reply to your message: "{{ msg.subject }}"</p>
+        <p>Sent via Portfolio Contact System</p>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-paper-plane"></i> Send Reply
+        </button>
+        <a href="{% url 'dashboard_message_detail' msg.pk %}" class="btn btn-ghost">
+          Cancel
+        </a>
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject }}" class="btn btn-outline" style="margin-left:auto">
+          <i class="fas fa-external-link-alt"></i> Open in Mail App Instead
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Original Message Preview -->
+  <div>
+    <div class="dash-card">
+      <h3 style="font-size:.9rem; margin-bottom:1rem; color:var(--text-muted)">
+        <i class="fas fa-envelope-open" style="color:var(--accent)"></i> Original Message
+      </h3>
+
+      <div style="font-size:.85rem; margin-bottom:.75rem">
+        <span style="color:var(--text-faint)">From</span><br>
+        <strong>{{ msg.name }}</strong><br>
+        <span style="color:var(--accent-2)">{{ msg.email }}</span>
+      </div>
+
+      <div style="font-size:.85rem; margin-bottom:.75rem">
+        <span style="color:var(--text-faint)">Subject</span><br>
+        <span>{{ msg.subject }}</span>
+      </div>
+
+      <div style="font-size:.85rem; margin-bottom:.75rem">
+        <span style="color:var(--text-faint)">Date</span><br>
+        <span style="color:var(--text-muted)">{{ msg.created_at|date:"M d, Y · H:i" }}</span>
+      </div>
+
+      <hr style="border-color:var(--border); margin:.75rem 0">
+
+      <div style="background:var(--bg-3); border-radius:8px; padding:.85rem; font-size:.85rem; color:var(--text-muted); line-height:1.75; max-height:280px; overflow-y:auto; white-space:pre-wrap">{{ msg.message }}</div>
+    </div>
+
+    <!-- Tips -->
+    <div class="dash-card" style="margin-top:1rem">
+      <h3 style="font-size:.85rem; margin-bottom:.75rem; color:var(--text-muted)">
+        <i class="fas fa-lightbulb" style="color:#fbbf24"></i> Tips
+      </h3>
+      <ul style="font-size:.82rem; color:var(--text-faint); line-height:1.8; padding-left:1rem">
+        <li>Reply will be sent from your configured email</li>
+        <li>Message will be marked as <strong style="color:#10b981">Replied</strong> automatically</li>
+        <li>Make sure SMTP is configured in <code style="background:var(--bg-3);padding:.1rem .35rem;border-radius:4px">.env</code></li>
+        <li>Or use <strong>Open in Mail App</strong> to use Gmail directly</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
