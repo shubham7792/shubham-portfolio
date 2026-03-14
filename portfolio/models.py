@@ -7,7 +7,7 @@ class Profile(models.Model):
     title = models.CharField(max_length=100, default='Full Stack Developer')
     tagline = models.CharField(max_length=200, default='Building beautiful & functional digital experiences.')
     bio = models.TextField(blank=True)
-    profile_image = CloudinaryField('image')
+    profile_image = CloudinaryField('image', blank=True, null=True)
     cv_file = models.FileField(upload_to='cv/', blank=True, null=True)
     github_url = models.URLField(blank=True)
     linkedin_url = models.URLField(blank=True)

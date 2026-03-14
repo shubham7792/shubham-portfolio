@@ -24,7 +24,7 @@ class Project(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField()
     short_description = models.CharField(max_length=300, blank=True)
-    image = CloudinaryField('image')
+    image = CloudinaryField('image', blank=True, null=True)
     technologies = models.ManyToManyField(Technology, blank=True)
     github_url = models.URLField(blank=True)
     live_url = models.URLField(blank=True)
