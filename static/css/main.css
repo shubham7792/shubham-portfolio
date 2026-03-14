@@ -1499,6 +1499,7 @@ img {
     flex-direction: column;
     gap: 2.5rem;
     text-align: center;
+    align-items: center;
   }
 
   .hero-image-ring {
