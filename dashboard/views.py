@@ -487,7 +487,7 @@ def message_reply(request, pk):
                 send_mail(
                     subject=subject,
                     message=email_body,
-                    from_email=conf_settings.DEFAULT_FROM_EMAIL,
+                    from_email=conf_settings.EMAIL_HOST_USER,
                     recipient_list=[msg.email],
                     fail_silently=False,
                 )
