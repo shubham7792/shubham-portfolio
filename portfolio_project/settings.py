@@ -201,7 +201,7 @@ ACCOUNT_FORMS = {}
 # Apply CSS classes to all allauth form fields automatically
 ACCOUNT_SIGNUP_FORM_CLASS = None
 
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+# DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
