@@ -1556,6 +1556,28 @@ img {
 }
 
 @media (max-width: 480px) {
+
+  .hero-container {
+    flex-direction: column !important;
+    gap: 2.5rem;
+    text-align: center !important;
+    align-items: center !important;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .hero-image-ring {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+  }
+
   .projects-grid {
     grid-template-columns: 1fr;
   }
